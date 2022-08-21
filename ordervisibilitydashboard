@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html>
+<body style="text-align:center;">
+
+
+<head>
+<style>
+
+.maindiv {
+ width : 100%;
+ height : 100%;
+}
+
+select {
+  font-size: 14px;
+  border: normal;
+  width: 300px;
+}
+
+.left {
+    width: 10%;
+    float: left;
+    text-align: right;
+}
+.right {
+    width: 15%;
+    margin-left: 10px;
+    float:left;
+}
+.advancesearch{
+	border: 1px solid #ddd;
+  	padding: 4px;
+  	width: 1300px;
+  	height: 120px;
+}
+#orderresult  {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+}
+
+#orderresult td, #customers th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#orderresult tr:nth-child(even){background-color: #f2f2f2;}
+
+#orderresult tr:hover {background-color: #ddd;}
+
+#orderresult th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04AA6D;
+  color: white;
+}
+
+#systemresult th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: center;
+  background-color: #04AA6D;
+  color: white;
+}
+
+#georesult, #plantresult  {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+}
+
+#georesult td, #plantresult td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.note{
+	font: italic small-caps normal 15px/15px Georgia, serif;
+	color: #4CAF50;
+}
+
+#georesult tr:nth-child(even){background-color: #f2f2f2;}
+
+#georesult tr:hover {background-color: #ddd;}
+
+#plantresult tr:nth-child(even){background-color: #f2f2f2;}
+
+#plantresult tr:hover {background-color: #ddd;}
+
+#georesult th, #plantresult th {
+  border: 1px solid #ddd;
+  text-align: center;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  background-color: #04AA6D;
+  color: white;
+}
+
+</style>
+
+</head>
+
+<p style="align:center;font-size: 22px;font-weight: bold">Order Visibility Dashboard &nbsp;&nbsp;<img src="swoosh.png" alt="Nike" width="20" height="15"></p>
+<p id="searcherror" style="float:left;margin-left:4%;background-color: yellow;font-size: 16px;font-weight: bold;color:red" hidden="true">Please enter valid order number or Select From Date and To Date to search data !!!</p>
+<p id="fromdateerror" style="float:left;margin-left:4%;background-color: yellow;font-size: 16px;font-weight: bold;color:red" hidden="true">From Date is required !!!</p>
+<p id="todateerror" style="float:left;margin-left:4%;background-color: yellow;font-size: 16px;font-weight: bold;color:red" hidden="true">To Date is required !!!</p>
+<p id="datecompareerror" style="float:left;margin-left:4%;background-color: yellow;font-size: 16px;font-weight: bold;color:red" hidden="true">From Date cannot be after To Date !!!</p>
+<p id="ordertypeerror" style="float:left;margin-left:4%;background-color: yellow;font-size: 16px;font-weight: bold;color:red" hidden="true">Order Type is required !!!</p>
+
+<br/><br/><br/>
+<div class="maindiv">
+<div> <label class="left" for="requestType"  style="float:left;margin-left:.25%;">Order Number (s) * </label>
+<input type="text" id="orderNo" name="orderNo" 
+       minlength="12" maxlength="1500" size="30" class="right" placeholder="Enter comma separated order numbers upto 100" onkeyup="enteringOrderNumber();" required>
+<span id="ordertypelabel" style="float:left;margin-left:5%" > <label for="geo">Order Type *</label>
+&nbsp;&nbsp;
+<select name="ordertype" id="ordertype" style="width: 100px;">
+    <option value=""  style="width: 100px;" >--Select--</option>
+    <option value="sales"  style="width: 100px;" >Sales Order</option>
+    <option value="purchase"  style="width: 100px;" >Purchase Order</option>
+    <option value="return"  style="width: 100px;" >Return Order</option>
+    
+</select>
+</div>
+</br></br>
+<p class="note" style="float:left;margin-left:4%;">OR</p>
+</br></br></br></br>
+<label>
+<input class="note" type="radio" id="eddmissedcancelled" name="orderreport" value="eddmissedcancelled" style="margin-left:-62%;" onclick="orderreporttype()" >Find EDD missed and cancelled orders for any plant</input>
+<input class="note"  type="radio" id="stuckorders" name="orderreport" value="stuckorders" style="margin-left:1%;" onclick="orderreporttype()">Find orders stuck in various systems</input>
+
+</label>
+
+       
+<br/><br/><br/>   
+ <label for="fromdate" style="float:left;margin-left:4%;">From Date:</label>
+<input type="datetime-local" id="fromdate" name="fromdate" style="float:left;margin-left:1%;" onkeyup="enteringDate();" disabled="true">     
+
+ <label for="todate" style="float:left;margin-left:4%;">To Date:</label>
+<input type="datetime-local" id="todate" name="todateplant" style="float:left;margin-left:1%;" onkeyup="enteringDate();" disabled="true">   
+<span id="plantlabel" style="float:left;margin-left:1%" > <label for="geo">Plants</label>
+&nbsp;&nbsp;
+<select name="plants" id="plants" style="width: 200px;" onchange="plantSelected();" disabled="true">
+    <option value="all"  style="width: 200px;" > All </option>
+    <option value="1003"  style="width: 200px;" >1003 (Relay)</option>
+    <option value="1005"  style="width: 200px;" >1005 (Rebound)</option>
+    <option value="1008"  style="width: 200px;" >1008 (Adapt)</option>
+    <option value="1010"  style="width: 50px;" >1010 (Centerpointe)</option>
+    <option value="1012"  style="width: 200px;" >1012 (FHR)</option>
+    <option value="1013"  style="width: 200px;" >1013 (Connect)</option>
+    <option value="1014"  style="width: 200px;" >1014 (NALC)</option>
+    <option value="1051"  style="width: 50px;" >1051 (Shelby)</option>
+</select>
+</span>   
+</div>
+
+<span id="systemlabel" style="float:left;margin-left:1%" > <label for="geo">System</label>
+&nbsp;&nbsp;
+<select name="system" id="system" style="width: 200px;" onchange="systemSelected();" disabled="true">
+    <option value="all"  style="width: 200px;" > All </option>
+    <option value="doms"  style="width: 200px;" >DOMS </option>
+    <option value="sap"  style="width: 200px;" >SAP </option>
+    <option value="middleware"  style="width: 200px;" >Middleware</option>
+    <option value="warehouse"  style="width: 50px;" >Warehouse</option>
+    <option value="store"  style="width: 200px;" >Store</option>
+</select>
+</span>   
+</div>
+
+
+
+<!-- 
+<div class="advancesearch" id="advancesearch" style="float:left;margin-left:4%">
+
+<span id="geolabel" style="float:left;margin-left:1%" > <label for="geo">Geo</label>
+&nbsp;&nbsp;
+<select name="geo" id="geo" multiple="multiple" style="width: 200px;" onchange="geoSelected();">
+    <option value="allgeo"  style="width: 200px;" >All</option>
+    <option value="na"  style="width: 200px;" >North America</option>
+    <option value="emea"  style="width: 200px;" >EMEA</option>
+    <option value="gc"  style="width: 200px;" >Greater China</option>
+    <option value="apla"  style="width: 50px;" >APLA</option>
+</select>
+</span>
+
+<span id="plantlabel" style="float:left;margin-left:1%" > <label for="geo">Plants</label>
+&nbsp;&nbsp;
+<select name="plants" id="plants" multiple="multiple" style="width: 200px;" onchange="plantSelected();">
+    <option value="allplant"  style="width: 200px;" >All</option>
+    <option value="1003"  style="width: 200px;" >1003 (Relay)</option>
+    <option value="1005"  style="width: 200px;" >1005 (Rebound)</option>
+    <option value="1008"  style="width: 200px;" >1008 (Adapt)</option>
+    <option value="1010"  style="width: 50px;" >1010 (Centerpointe)</option>
+    <option value="1012"  style="width: 200px;" >1012 (FHR)</option>
+    <option value="1013"  style="width: 200px;" >1013 (Connect)</option>
+    <option value="1014"  style="width: 200px;" >1014 (NALC)</option>
+    <option value="1051"  style="width: 50px;" >1051 (Shelby)</option>
+</select>
+</span>
+<span id="systemlabel" style="float:left;margin-left:1%" > <label for="geo">Systems</label>
+&nbsp;&nbsp;
+<select name="system" id="system" multiple="multiple" style="width: 200px;" onchange="systemSelected();">
+    <option value="allsystem"  style="width: 200px;" >All</option>
+    <option value="doms"  style="width: 200px;" >DOMS </option>
+    <option value="sap"  style="width: 200px;" >SAP </option>
+    <option value="middleware"  style="width: 200px;" >Middleware</option>
+    <option value="warehouse"  style="width: 50px;" >Warehouse</option>
+    <option value="store"  style="width: 200px;" >Store</option>
+</select>
+</span>
+<span id="sourcelabel" style="float:left;margin-left:1%" > <label for="geo">Source</label>
+&nbsp;&nbsp;
+<select name="source" id="source" multiple="multiple" style="width: 200px;" onchange="sourceSelected();">
+    <option value="allsource"  style="width: 200px;" >All</option>
+    <option value="nike.com"  style="width: 200px;" >nike.com </option>
+    <option value="app"  style="width: 200px;" >Nike App </option>
+    <option value="nby"  style="width: 200px;" >NBY</option>
+    <option value="snkrs"  style="width: 50px;" >SNKRS</option>
+</select>
+</span>
+</div> -->
+
+
+
+
+</br></br></br></br></br></br></br></br>
+<div style="float:left;width:100%">
+<Input type = 'Submit' Name ='Submit' value="Submit" style="float:left;margin-left:4%" onclick="searchOrder();" >
+<!-- 
+<Input type = 'Submit' Name ='Advance Search' value="Advance Search" id="advsearchbtn" style="float:left;margin-left:1%" onclick="advsearchOrder();" >
+<Input type = 'Submit' Name ='Normal Search' value="Normal Search" style="float:left;margin-left:1%" id="ordersearchbtn" hidden="true" onclick="orderSearch();" >
+ -->
+<Input type = 'Reset' Name ='Reset' value="Reset" style="float:left;margin-left:1%" onclick="resetOrder();">
+</div>
+
+<br/><br/><br/><br/>
+
+<table id="orderresult" hidden="true" style="float:left;margin-left:4%;width:100%" table-bordered table-responsive>
+  <tr id="details">
+            <th>OrderNumber</th>
+            <th>OrderStatus</th>
+            <th>Order Line Key</th>
+            <th>Plant Code</th>
+            <th>Line Type&nbsp;&nbsp;&nbsp;&nbsp;</th>
+            <th>Geo</th>
+        </tr>
+        <tr>
+            <td>C00733889368</td>
+            <td>Shipped</td>
+            <td>202201231700458289252445</td>
+            <td>Shelby (1051)</td>
+            <td>Inline</td>
+            <td>NA</td>
+        </tr>
+        <tr>
+            <td>C00516728089</td>
+            <td>Delivered</td>
+            <td>202201231700458289252446</td>
+            <td>NALC (1014)</td>
+            <td>NikeId</td>
+            <td>NA</td>
+        </tr>
+        <tr>
+            <td>C00590319550</td>
+            <td>DSV Acknowledged</td>
+            <td>202201231700458289252445</td>
+            <td>CLC (1027)</td>
+            <td>Inline</td>
+            <td>GC</td>
+        </tr>
+        <tr>
+            <td>C00608455334</td>
+            <td>WH Acknowledged</td>
+            <td>202201231700458289252447</td>
+            <td>Relay (1003)</td>
+            <td>Inline</td>
+            <td>NA</td>
+        </tr>
+        <tr>
+            <td>C00612140328</td>
+            <td>Shipped</td>
+            <td>202201231700458289252449</td>
+            <td>Wings (1064)</td>
+            <td>Inline</td>
+            <td>Europe</td>
+        </tr>
+        <tr>
+            <td>C00733889368</td>
+            <td>Shipped</td>
+            <td>202201231700458289252445</td>
+            <td>1084</td>
+            <td>Inline</td>
+            <td>APLA</td>
+        </tr>
+        <tr>
+            <td>C00516728089</td>
+            <td>Delivered</td>
+            <td>202201231700458289252446</td>
+            <td>NALC (1014)</td>
+            <td>NikeId</td>
+            <td>NA</td>
+        </tr>
+        <tr>
+            <td>C00590319550</td>
+            <td>DSV Acknowledged</td>
+            <td>202201231700458289252445</td>
+            <td>Wings (1064)</td>
+            <td>Inline</td>
+            <td>Europe</td>
+        </tr>
+        <tr>
+            <td>C00608455334</td>
+            <td>WH Acknowledged</td>
+            <td>202201231700458289252447</td>
+            <td>1084</td>
+            <td>Inline</td>
+            <td>APLA</td>
+        </tr>
+        <tr>
+            <td>C00612140328</td>
+            <td>Shipped</td>
+            <td>202201231700458289252449</td>
+            <td>CLC (1039)</td>
+            <td>Inline</td>
+            <td>GC</td>
+        </tr>
+        <tr>
+            <td>C00733889368</td>
+            <td>Shipped</td>
+            <td>202201231700458289252445</td>
+            <td>Shelby (1051)</td>
+            <td>Inline</td>
+            <td>NA</td>
+        </tr>
+        <tr>
+            <td>C00516728089</td>
+            <td>Delivered</td>
+            <td>202201231700458289252446</td>
+            <td>NALC (1014)</td>
+            <td>NikeId</td>
+            <td>NA</td>
+        </tr>
+        <tr>
+            <td>C00590319550</td>
+            <td>DSV Acknowledged</td>
+            <td>202201231700458289252445</td>
+            <td>Rebound(1005)</td>
+            <td>Inline</td>
+            <td>NA</td>
+        </tr>
+        <tr>
+            <td>C00608455334</td>
+            <td>WH Acknowledged</td>
+            <td>202201231700458289252447</td>
+            <td>Court DC</td>
+            <td>Inline</td>
+            <td>Europe</td>
+        </tr>
+        <tr>
+            <td>C00612140328</td>
+            <td>Shipped</td>
+            <td>202201231700458289252449</td>
+            <td>Connect (1013)</td>
+            <td>Inline</td>
+            <td>NA</td>
+        </tr>
+        <tr>
+            <td>C00733889368</td>
+            <td>Shipped</td>
+            <td>202201231700458289252445</td>
+            <td>Shelby (1051)</td>
+            <td>Inline</td>
+            <td>NA</td>
+        </tr>
+        <tr>
+            <td>C00516728089</td>
+            <td>Delivered</td>
+            <td>202201231700458289252446</td>
+            <td>NALC (1014)</td>
+            <td>NikeId</td>
+            <td>NA</td>
+        </tr>
+        <tr>
+            <td>C00590319550</td>
+            <td>DSV Acknowledged</td>
+            <td>202201231700458289252445</td>
+            <td>Rebound(1005)</td>
+            <td>Inline</td>
+            <td>NA</td>
+        </tr>
+        <tr>
+            <td>C00608455334</td>
+            <td>WH Acknowledged</td>
+            <td>202201231700458289252447</td>
+            <td>Relay (1003)</td>
+            <td>Inline</td>
+            <td>NA</td>
+        </tr>
+        <tr>
+            <td>C00612140328</td>
+            <td>Shipped</td>
+            <td>202201231700458289252449</td>
+            <td>Connect (1013)</td>
+            <td>Inline</td>
+            <td>NA</td>
+        </tr>
+</table>
+
+<br/><br/><br/><br/>
+<!-- 
+<table id="georesult" hidden="true"  style="float:left;margin-left:4%;width:100%">
+  <tr>
+    <th colspan="1" style="width:21%"></th>
+    <th colspan="2" style="width:21%">North America</th>
+    <th colspan="2" style="width:21%">Greater China</th>
+    <th colspan="2" style="width:21%">EMEA</th>
+    <th colspan="2" style="width:26%">APLA</th> 
+  </tr>
+  <tr>
+    <th colspan="1"></th>
+    <th colspan="1">Count</th>
+    <th colspan="1">Amount</th>
+    <th colspan="1">Count</th>
+    <th colspan="1">Amount</th>
+    <th colspan="1">Count</th>
+    <th colspan="1">Amount</th>
+    <th colspan="1" style="width:12%">Count</th>
+    <th colspan="1" style="width:20%">Amount</th>
+  </tr>
+  <tr>
+    <td colspan="1"><a title="" href="#" target="popup" onclick="window.open('OrderDetails1.html','popup','width=1200,height=1200'); return false;">Orders</a></td>
+    <th colspan="1" >21234</th>
+    <th colspan="1">32234</th>
+    <th colspan="1">3455</th>
+    <th colspan="1">3223</th> 
+    <th colspan="1" >21234</th>
+    <th colspan="1">32234</th>
+    <th colspan="1">3455</th>
+    <th colspan="1">3223</th>
+  </tr>
+  <tr>
+    <td colspan="1"><a title="Global Cancelled Order Trend" href="#" target="popup" onclick="window.open('GlobalCancelled.html','popup','width=1200,height=1200'); return false;">Cancelled Orders</a></td>
+    <th colspan="1"><a title="NA Cancelled Order Trend" href="#" target="popup" onclick="window.open('NACancelled.html','popup','width=1200,height=1200'); return false;">21234</a></th>
+    <th colspan="1">32234</th>
+    <th colspan="1"><a  title="GC Cancelled Order Trend" href="#" target="popup" onclick="window.open('GCCancelled.html','popup','width=1200,height=1200'); return false;">3455</a></th>
+    <th colspan="1">3223</th> 
+    <th colspan="1" ><a title="EU Cancelled Order Trend" href="#" target="popup" onclick="window.open('EUCancelled.html','popup','width=1200,height=1200'); return false;">21234</a></th>
+    <th colspan="1">32234</th>
+    <th colspan="1"><a title="APLA Cancelled Order Trend" href="#" target="popup" onclick="window.open('APLACancelled.html','popup','width=1200,height=1200'); return false;">3455</a></th>
+    <th colspan="1">3223</th>
+  </tr>
+  <tr>
+    <td colspan="1"><a title="Global EDD Missed Order Trend" href="#" target="popup" onclick="window.open('EDDMissedOrders.html','popup','width=1200,height=1200'); return false;">EDD Missed Orders</a></td>
+    <th colspan="1"><a title="NA EDD Missed Order Trend" href="#" target="popup" onclick="window.open('NAEDDMissedOrders.html','popup','width=1200,height=1200'); return false;">21234</a></th>
+    <th colspan="1">32234</th>
+    <th colspan="1"><a title="GC EDD Missed Order Trend" href="#" target="popup" onclick="window.open('GCEDDMissedOrders.html','popup','width=1200,height=1200'); return false;">3455</a></th>
+    <th colspan="1">3223</th> 
+    <th colspan="1" ><a title="EU EDD Missed Order Trend" href="#" target="popup" onclick="window.open('EUEDDMissedOrders.html','popup','width=1200,height=1200'); return false;">21234</a></th>
+    <th colspan="1">32234</th>
+    <th colspan="1"><a title="APLA EDD Missed Order Trend" href="#" target="popup" onclick="window.open('APLAEDDMissedOrders.html','popup','width=1200,height=1200'); return false;">3455</a></th>
+    <th colspan="1">3223</th>
+  </tr>
+</table>
+ -->
+</br></br>
+<table id="plantresult" hidden="true"  style="float:left;margin-left:4%;width:100%">
+  <tr>
+  	
+    <th colspan="1" style="width:11%"></th>
+    <th colspan="2" style="width:11%">SD1 (LDC)</th>
+    <th colspan="2" style="width:11%">1003 (Relay)</th>
+    <th colspan="2" style="width:11%">1005 (Rebound)</th>
+    <th colspan="2" style="width:11%">1008 (Adapt)</th>
+    <th colspan="2" style="width:11%">1010 (Centerpointe)</th> 
+    <th colspan="2" style="width:11%">1012 (FHR)</th>
+    <th colspan="2" style="width:11%">1013 (Connect)</th>
+    <th colspan="2" style="width:11%">1014 (NALC)
+  </tr>
+  <tr>
+    <th colspan="1"></th>
+    <th colspan="1">Count</th>
+    <th colspan="1">Amount</th>
+    <th colspan="1">Count</th>
+    <th colspan="1">Amount</th>
+    <th colspan="1">Count</th>
+    <th colspan="1">Amount</th>
+    <th colspan="1">Count</th>
+    <th colspan="1">Amount</th>
+    <th colspan="1">Count</th>
+    <th colspan="1">Amount</th>
+    <th colspan="1">Count</th>
+    <th colspan="1">Amount</th>
+    <th colspan="1">Count</th>
+    <th colspan="1">Amount</th>
+    <th colspan="1">Count</th>
+    <th colspan="1">Amount</th>
+  </tr>
+  <tr>
+    <td colspan="1"><a title="" href="#" target="popup" onclick="window.open('OrderDetails1.html','popup','width=1200,height=1200'); return false;">Orders</a></td>
+    <th colspan="1" >21234</th>
+    <th colspan="1">32234</th>
+    <th colspan="1" >21234</th>
+    <th colspan="1">32234</th>
+    <th colspan="1">3455</th>
+    <th colspan="1">3223</th> 
+    <th colspan="1" >21234</th>
+    <th colspan="1">32234</th>
+    <th colspan="1">3455</th>
+    <th colspan="1">3223</th>
+    <th colspan="1" >21234</th>
+    <th colspan="1">32234</th>
+    <th colspan="1">3455</th>
+    <th colspan="1">3223</th> 
+    <th colspan="1" >21234</th>
+    <th colspan="1">32234</th>
+    
+  </tr>
+  <tr>
+<!--      <td colspan="1"><a href="#" target="popup" onclick="window.open('NACancelled.html','popup','width=1200,height=1200'); return false;">Cancelled Orders</a></td>  -->
+     <td colspan="1"><a title="" href="#" target="popup" onclick="window.open('OrderDetails1.html','popup','width=1200,height=1200'); return false;">Cancelled Orders</a></td> 
+     
+    <th colspan="1" >21234</th>
+    <th colspan="1">32234</th>
+    <th colspan="1">3455</th>
+    <th colspan="1">3223</th> 
+    <th colspan="1" >21234</th>
+    <th colspan="1">32234</th>
+    <th colspan="1">3455</th>
+    <th colspan="1">3223</th>
+    <th colspan="1" >21234</th>
+    <th colspan="1">32234</th>
+    <th colspan="1">3455</th>
+    <th colspan="1">3223</th> 
+    <th colspan="1" >21234</th>
+    <th colspan="1">32234</th>
+    <th colspan="1">3455</th>
+    <th colspan="1">3223</th>
+  </tr>
+  <tr>
+    <td colspan="1"><a title="" href="#" target="popup" onclick="window.open('OrderDetails1.html','popup','width=1200,height=1200'); return false;">EDD Missed Orders</a></td>
+      <th colspan="1" >21234</th>
+    <th colspan="1">32234</th>
+    <th colspan="1">3455</th>
+    <th colspan="1">3223</th> 
+    <th colspan="1" >21234</th>
+    <th colspan="1">32234</th>
+    <th colspan="1">3455</th>
+    <th colspan="1">3223</th>
+    <th colspan="1" >21234</th>
+    <th colspan="1">32234</th>
+    <th colspan="1">3455</th>
+    <th colspan="1">3223</th> 
+    <th colspan="1" >21234</th>
+    <th colspan="1">32234</th>
+    <th colspan="1">3455</th>
+    <th colspan="1">3223</th>
+  </tr>
+  
+</table>
+</br></br>
+
+<table id="systemresult" hidden="true"  style="float:left;margin-left:4%;width:100%">
+  <tr>
+    <th colspan="1" style="width:11%">DOMS</th>
+    <th colspan="1" style="width:11%">SAP</th>
+    <th colspan="1" style="width:11%">Middleware</th>
+    <th colspan="1" style="width:11%">Warehouse</th> 
+  </tr>
+  <tr>
+   
+    <th colspan="1"><a title="" href="#" target="popup" onclick="window.open('OrderDetails1.html','popup','width=1200,height=1200'); return false;">122</a></th>
+    <th colspan="1"><a title="" href="#" target="popup" onclick="window.open('OrderDetails1.html','popup','width=1200,height=1200'); return false;" style="color:red">2000</a></th>
+    <th colspan="1"><a title="" href="#" target="popup" onclick="window.open('OrderDetails1.html','popup','width=1200,height=1200'); return false;">20</a></th>
+    <th colspan="1"><a title="" href="#" target="popup" onclick="window.open('OrderDetails1.html','popup','width=1200,height=1200'); return false;">235</a></th>
+  </tr>
+  
+  
+</table>
+
+<fieldset id="statuslegend" style="float:right" hidden="true">
+                <!-- Legend tag using -->
+                <legend>Stuck status::</legend>
+                <label>DOMS:</label>
+                <label class="note">Order status till Published to Pulse</label>
+                <br><br>
+                <label>SAP:</label>
+                <label class="note">Order status till DSV Acknowledged</label>
+                <br><br>
+                <label>Middleware:</label>
+                <label class="note">Order status till Sent to Warehouse</label>
+                <br><br>
+                <label>Warehouse:</label>
+                <label class="note">Order status till WH Acknowledged</label>
+ 
+                
+            </fieldset>
+
+
+</div>
+<script>
+
+function orderreporttype(){
+	if(document.getElementById("eddmissedcancelled").checked){
+		document.getElementById("system").disabled=true;
+		document.getElementById("plants").disabled=false;
+		document.getElementById("todate").disabled=false;
+		document.getElementById("fromdate").disabled=false;
+		document.getElementById("orderNo").disabled=true;
+		document.getElementById("ordertype").disabled=true
+		document.getElementById("ordertype").value="";
+		document.getElementById("orderNo").value="";
+		
+	}
+	else if(document.getElementById("stuckorders").checked){
+		document.getElementById("system").disabled=false;
+		document.getElementById("plants").disabled=false;
+		document.getElementById("todate").disabled=false;
+		document.getElementById("fromdate").disabled=false;
+		document.getElementById("orderNo").disabled=true;
+		document.getElementById("ordertype").disabled=true
+		document.getElementById("ordertype").value="";
+		document.getElementById("orderNo").value="";
+	}
+	
+	
+}
+
+function searchOrder(){
+
+
+var showResults=false;
+
+	if(!document.getElementById("orderNo").disabled && document.getElementById("orderNo").value.length<12 && !(document.getElementById("fromdate").value.length>0 && document.getElementById("todate").value.length>0 ) ){
+		document.getElementById("searcherror").style.display="inline";
+		showResults=true;
+		
+	}
+	else if(document.getElementById("orderNo").value.length==0){
+ 		if(document.getElementById("fromdate").value=== undefined || document.getElementById("fromdate").value ===null || document.getElementById("fromdate").value.length==0){
+ 			document.getElementById("datecompareerror").style.display="none";
+ 			document.getElementById("fromdateerror").style.display="inline";
+ 			document.getElementById("searcherror").style.display="none";
+ 			document.getElementById("todateerror").style.display="none";
+ 		}
+ 		else if(document.getElementById("todate").value=== undefined || document.getElementById("todate").value ===null || document.getElementById("todate").value.length==0){
+ 			document.getElementById("todateerror").style.display="inline";
+ 			document.getElementById("fromdateerror").style.display="none";
+ 			document.getElementById("searcherror").style.display="none";
+ 			document.getElementById("datecompareerror").style.display="none";
+ 		}
+ 		else if(document.getElementById("todate").value < document.getElementById("fromdate").value){
+ 			document.getElementById("datecompareerror").style.display="inline";
+ 			document.getElementById("fromdateerror").style.display="none";
+ 			document.getElementById("searcherror").style.display="none";
+ 			document.getElementById("todateerror").style.display="none";
+ 		}
+ 		else if(document.getElementById("eddmissedcancelled").checked){
+ 			
+ 			document.getElementById("plantresult").style.display="inline";
+ 			document.getElementById("orderresult").style.display="none";
+ 			document.getElementById("systemresult").style.display="none";
+ 			document.getElementById("statuslegend").style.display="none";
+ 			
+ 		}
+ 		else if(document.getElementById("stuckorders").checked){
+ 			document.getElementById("systemresult").style.display="inline";
+ 			document.getElementById("statuslegend").style.display="inline";
+ 			document.getElementById("plantresult").style.display="none";
+ 			document.getElementById("orderresult").style.display="none";
+ 			
+ 		}
+ 		// else if(document.getElementById("fromdate").value.length>0 && document.getElementById("todate").value.length>0){
+//  			if(document.getElementById("plants").value.length==0 && document.getElementById("geo").value.length==0 && 
+//  				document.getElementById("source").value.length==0 && document.getElementById("system").value.length==0) {
+//  				alert('Please choose either one of Geo or Plants or System or Source !!!');
+//  			}
+//  		}
+ 	}
+ 	else if(document.getElementById("orderNo").value.length>=12){
+ 	
+ 		if(document.getElementById("ordertype").value.length==0){
+ 			document.getElementById("ordertypeerror").style.display="inline";
+ 		}
+ 		else{
+ 			document.getElementById("orderresult").style.display="inline";
+ 			document.getElementById("searcherror").style.display="none";
+ 			document.getElementById("plantresult").style.display="none";
+ 			document.getElementById("fromdateerror").style.display="none";
+ 			document.getElementById("searcherror").style.display="none";
+ 			document.getElementById("todateerror").style.display="none";
+ 			document.getElementById("datecompareerror").style.display="none";
+ 			document.getElementById("ordertypeerror").style.display="none";
+ 		}
+ 		
+ 	}
+ 	
+ 	
+		
+}
+
+// function advsearchOrder(){
+// 	document.getElementById("advancesearch").style.display="inline";
+// 	document.getElementById("advsearchbtn").style.display="none";
+// 	document.getElementById("ordersearchbtn").style.display="inline";
+// 	document.getElementById("orderresult").style.display="none";
+// 	document.getElementById("orderNo").value="";
+// 	document.getElementById("orderNo").disabled=true;
+// }
+// 
+// function orderSearch(){
+// 	document.getElementById("advancesearch").style.display="none";
+// 	document.getElementById("advsearchbtn").style.display="inline";
+// 	document.getElementById("ordersearchbtn").style.display="none";
+// 	document.getElementById("orderresult").style.display="none";
+// 	document.getElementById("orderNo").disabled=false;
+// }
+
+function enteringOrderNumber(){
+	if(document.getElementById("orderNo").value.length>0){
+		document.getElementById("plants").disabled=true;
+		document.getElementById("fromdate").disabled=true;
+		document.getElementById("todate").disabled=true;
+	}
+	else{
+		document.getElementById("plants").disabled=false;
+		document.getElementById("source").disabled=false;
+		document.getElementById("system").disabled=false;
+		document.getElementById("geo").disabled=false;
+		document.getElementById("fromdate").disabled=false;
+		document.getElementById("todate").disabled=false;
+	}
+	
+}
+
+function enteringDate(){
+	if(document.getElementById("fromdate").value.length>0 || document.getElementById("todate").value.length>0){
+		document.getElementById("orderNo").disabled=true;
+		document.getElementById("orderNo").value="";
+	}
+	else {
+		document.getElementById("orderNo").disabled=false;
+		}
+}
+
+function geoSelected(){
+	document.getElementById("plants").disabled=true;
+	document.getElementById("source").disabled=true;
+	document.getElementById("system").disabled=true;
+	document.getElementById("orderNo").disabled=true;
+	document.getElementById("orderNo").value="";
+}
+
+function plantSelected(){
+// 	document.getElementById("geo").disabled=true;
+// 	document.getElementById("source").disabled=true;
+// 	document.getElementById("system").disabled=true;
+	document.getElementById("orderNo").disabled=true;
+	document.getElementById("orderNo").value="";
+	document.getElementById("system").value="";
+}
+
+function sourceSelected(){
+	document.getElementById("plants").disabled=true;
+// 	document.getElementById("geo").disabled=true;
+// 	document.getElementById("system").disabled=true;
+	document.getElementById("orderNo").disabled=true;
+	document.getElementById("orderNo").value="";
+}
+
+function systemSelected(){
+	document.getElementById("plants").disabled=true;
+// 	document.getElementById("geo").disabled=true;
+// 	document.getElementById("source").disabled=true;
+	document.getElementById("orderNo").disabled=true;
+	document.getElementById("orderNo").value="";
+	document.getElementById("plants").value="";
+}
+
+function resetOrder(){
+		document.getElementById("eddmissedcancelled").checked=false;
+		document.getElementById("stuckorders").checked=false;
+		document.getElementById("orderresult").style.display="none";
+		document.getElementById("searcherror").style.display="none";
+// 		document.getElementById("advancesearch").style.display="none";
+// 		document.getElementById("advsearchbtn").style.display="inline";
+// 		document.getElementById("ordersearchbtn").style.display="none";
+// 		document.getElementById("georesult").style.display="none";
+		document.getElementById("plantresult").style.display="none";
+		document.getElementById("orderNo").disabled=false;
+		document.getElementById("ordertype").disabled=false;
+		document.getElementById("plants").disabled=true;
+// 		document.getElementById("geo").disabled=false;
+		document.getElementById("system").disabled=true;
+// 		document.getElementById("source").disabled=false;
+		document.getElementById("fromdate").disabled=true;
+		document.getElementById("todate").disabled=true;
+		document.getElementById("ordertypeerror").style.display="none";
+		document.getElementById("orderNo").value="";
+		document.getElementById("plants").value="all";
+// 		document.getElementById("geo").value="";
+		document.getElementById("system").value="all";
+// 		document.getElementById("source").value="";
+		document.getElementById("fromdate").value="";
+		document.getElementById("todate").value="";
+		document.getElementById("statuslegend").style.display="none";
+		document.getElementById("systemresult").style.display="none";
+		
+}
+
+       
+</script>
+</body>
+
+</html>
